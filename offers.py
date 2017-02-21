@@ -1,8 +1,9 @@
 import json
 import requests
 import unittest
-from authorization import test_authorization
 import time
+
+from authorization import test_authorization
 from baseSettings import *
 
 
@@ -102,11 +103,12 @@ class Test_004_offer_liking_disliking(unittest.TestCase):
 
     def __init__(self, *a, **kw):
         super(Test_004_offer_liking_disliking, self).__init__(*a, **kw)
+        self.token, self.index = test_authorization()
         self.s = requests.Session()
 
     def test_01_offer_liked_and_disliked_correctly(self):
-        token, index = test_authorization()
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
+
+        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
         self.command_category_create = 'management/categories/create'
 
         self.url_category_create = '{}/{}'.format(HOST, self.command_category_create)
@@ -115,9 +117,7 @@ class Test_004_offer_liking_disliking(unittest.TestCase):
 
         self.assertEqual(response.status_code, SUCCESS)
 
-        resp = json.loads(response.content)
-        identifier = resp['id']
-
+        identifier = json.loads(response.content)['id']
         self.command_business_create = 'management/businesses/create'
         self.url_business_create = '{}/{}'.format(HOST, self.command_business_create)
         email_value = time.strftime("%d%m%Y" + "%H%M%S") + "@" + "test.com"

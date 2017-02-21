@@ -1,4 +1,4 @@
-import unittest
+
 import requests
 import json
 import time
@@ -20,7 +20,3 @@ def test_authorization():
         index = json.loads(response.content)['id']
 
         return (auth_token, index)
-
-if __name__ == '__main__':
-    unittest.main()
-

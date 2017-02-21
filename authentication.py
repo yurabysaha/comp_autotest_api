@@ -94,7 +94,7 @@ class Test_Recovery_Password(unittest.TestCase):
     def test_01_recovered_password_successfully(self):
 
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
-        userdata = json.dumps({"email": "tester06022@mailinator.com"})
+        userdata = json.dumps({"email": EMAIL})
         response = self.s.post(self.url_recovery_password, data=userdata, headers=headers)
         reset_token = response.headers['reset_token']
 
@@ -102,7 +102,7 @@ class Test_Recovery_Password(unittest.TestCase):
 
         self.command_reset_password = 'auth/reset'
         self.url_reset_password = '{}/{}'.format(HOST, self.command_reset_password)
-        userdata = json.dumps({"token": reset_token, "password": "string", "password_confirmation": "string"})
+        userdata = json.dumps({"token": reset_token, "password": PSW, "password_confirmation": PSW})
         response = self.s.post(self.url_reset_password, data=userdata, headers=headers)
 
         self.assertEqual(response.status_code, SUCCESS)

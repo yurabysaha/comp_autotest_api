@@ -67,10 +67,10 @@ class Test_002_My_Profile_Edit(unittest.TestCase):
         self.assertEqual(json.loads(response.content)["full_name"], edited_name)
 
 
-class Test_My_Profile_Change_Password(unittest.TestCase):
+class Test_003_My_Profile_Change_Password(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_My_Profile_Change_Password, self).__init__(*a, **kw)
+        super(Test_003_My_Profile_Change_Password, self).__init__(*a, **kw)
         self.command_sign_in = 'auth/signin'
         self.command_change_password = 'me/change-password'
         self.url_change_passsword = '{}/{}'.format(HOST, self.command_change_password)
@@ -81,15 +81,14 @@ class Test_My_Profile_Change_Password(unittest.TestCase):
 
         self.url_sign_in = '{}/{}'.format(HOST, self.command_sign_in)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
-        passvalue = "string"
-        userdata = json.dumps({"email": "tester06021@mailinator.com", "password": passvalue})
+        userdata = json.dumps({"email": EMAIL, "password": PSW})
         response = self.s.post(self.url_sign_in, data=userdata, headers=headers)
         auth_token = response.headers['Authorization']
 
         self.assertEqual(response.status_code, SUCCESS)
 
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': auth_token}
-        userdata = json.dumps({ "old_password": passvalue, "new_password": passvalue, "new_password_confirmation": passvalue})
+        userdata = json.dumps({ "old_password": PSW, "new_password": PSW, "new_password_confirmation": PSW})
         response = self.s.post(self.url_change_passsword, data=userdata, headers=headers)
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -99,7 +98,7 @@ class Test_My_Profile_Change_Password(unittest.TestCase):
         self.url_sign_in = '{}/{}'.format(HOST, self.command_sign_in)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         passvalue = "string"
-        userdata = json.dumps({"email": "tester06021@mailinator.com", "password": passvalue})
+        userdata = json.dumps({"email": EMAIL, "password": PSW})
         response = self.s.post(self.url_sign_in, data=userdata, headers=headers)
         auth_token = response.headers['Authorization']
 
@@ -111,12 +110,12 @@ class Test_My_Profile_Change_Password(unittest.TestCase):
 
         self.assertEqual(response.status_code, BADDATA)
 
-    def test_02_user_change_password_empty_old_password(self):
+    def test_03_user_change_password_empty_old_password(self):
 
         self.url_sign_in = '{}/{}'.format(HOST, self.command_sign_in)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         passvalue = "string"
-        userdata = json.dumps({"email": "tester06021@mailinator.com", "password": passvalue})
+        userdata = json.dumps({"email": EMAIL, "password": PSW})
         response = self.s.post(self.url_sign_in, data=userdata, headers=headers)
         auth_token = response.headers['Authorization']
 
@@ -129,10 +128,10 @@ class Test_My_Profile_Change_Password(unittest.TestCase):
         self.assertEqual(response.status_code, BADDATA)
 
 
-class Test_My_Profile_LogOut(unittest.TestCase):
+class Test_004_My_Profile_LogOut(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_My_Profile_LogOut, self).__init__(*a, **kw)
+        super(Test_004_My_Profile_LogOut, self).__init__(*a, **kw)
         self.command_log_out = 'me/logout'
         self.command_sign_in = 'auth/signin'
         self.url_log_out = '{}/{}'.format(HOST, self.command_log_out)
@@ -143,7 +142,7 @@ class Test_My_Profile_LogOut(unittest.TestCase):
         self.url_sign_in = '{}/{}'.format(HOST, self.command_sign_in)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         passvalue = "string"
-        userdata = json.dumps({"email": "tester06021@mailinator.com", "password": passvalue})
+        userdata = json.dumps({"email": EMAIL, "password": PSW})
         response = self.s.post(self.url_sign_in, data=userdata, headers=headers)
         auth_token = response.headers['Authorization']
 

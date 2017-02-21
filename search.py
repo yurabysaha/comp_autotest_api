@@ -4,10 +4,10 @@ import unittest
 from baseSettings import *
 
 
-class Test_004_Search(unittest.TestCase):
+class Test_001_Search(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_004_Search, self).__init__(*a, **kw)
+        super(Test_001_Search, self).__init__(*a, **kw)
         self.command_search = 'search'
         self.searchQuery = 'searchQuery'
         self.searchvalue = 'klip'
@@ -29,10 +29,10 @@ class Test_004_Search(unittest.TestCase):
         self.assertEqual(response.status_code, SUCCESS)
 
 
-class Test_004_Search1(unittest.TestCase):
+class Test_002_Search1(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_004_Search1, self).__init__(*a, **kw)
+        super(Test_002_Search1, self).__init__(*a, **kw)
         self.command_search = 'search'
         self.searchQuery = 'searchQuery'
         self.searchvalue = 'klip'
@@ -49,10 +49,10 @@ class Test_004_Search1(unittest.TestCase):
         self.assertEqual(response.status_code, SUCCESS)
 
 
-class Test_004_Search2(unittest.TestCase):
+class Test_003_Search2(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_004_Search2, self).__init__(*a, **kw)
+        super(Test_003_Search2, self).__init__(*a, **kw)
         self.command_search = 'search'
         self.searchQuery = 'searchQuery'
         self.searchvalue = 'klip'
@@ -95,10 +95,10 @@ class Test_004_Search3(unittest.TestCase):
         self.assertEqual(response.status_code, SUCCESS)
 
 
-class Test_004_Search4(unittest.TestCase):
+class Test_005_Search4(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_004_Search4, self).__init__(*a, **kw)
+        super(Test_005_Search4, self).__init__(*a, **kw)
         self.s = requests.Session()
         self.command_search = 'search'
         self.searchQuery = 'searchQuery'
@@ -121,10 +121,10 @@ class Test_004_Search4(unittest.TestCase):
         self.assertEqual(response.status_code, SUCCESS)
 
 
-class Test_004_Search5(unittest.TestCase):
+class Test_006_Search5(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_004_Search5, self).__init__(*a, **kw)
+        super(Test_006_Search5, self).__init__(*a, **kw)
         self.command_search = 'search'
         self.s = requests.Session()
         self.url_search = '{}/{}'.format(HOST, self.command_search)
@@ -137,10 +137,10 @@ class Test_004_Search5(unittest.TestCase):
         self.assertEqual(response.status_code, SUCCESS)
 
 
-class Test_004_Search6(unittest.TestCase):
+class Test_007_Search6(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_004_Search6, self).__init__(*a, **kw)
+        super(Test_007_Search6, self).__init__(*a, **kw)
         self.s = requests.Session()
         self.command_search = 'search'
         self.searchQuery = 'searchQuery'

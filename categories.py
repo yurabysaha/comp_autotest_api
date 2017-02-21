@@ -170,12 +170,12 @@ class Test_004_Tag_Attaching_To_Category(unittest.TestCase):
         self.tag_id = 'tag_id'
         self.tag_type = 'tag_type=App\\Tag'
         self.matching_criteria = 'matching_criteria=areWordsSimilar'
-        self.importancy = 'importancy=0.1'
+        self.importance = 'importance=medium'
 
         self.url_tag_attaching_to_category = '{}/{}?{}={}&{}={}&{}&{}&{}'.format(HOST, self.command_tag_attaching_to_category,
                                                                               self.category_id, index, self.tag_id,
                                                                               identifier, self.tag_type, self.matching_criteria,
-                                                                              self.importancy)
+                                                                              self.importance)
         response = self.s.post(self.url_tag_attaching_to_category, headers=headers)
 
         self.assertEqual(response.status_code, UPDATED)

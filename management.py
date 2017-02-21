@@ -170,16 +170,15 @@ class Test_007_Role_Attaching(unittest.TestCase):
 
     def test_01_role_is_attached_successfully(self):
 
-        #create role before attach
+        #get one role before attach
         token, user_id = test_authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
-        self.command_create_role = 'management/roles/create'
-        self.url_create_role = '{}/{}'.format(HOST, self.command_create_role)
-        userdata = json.dumps({"name": 'forTest'})
-        response = self.s.post(self.url_create_role, data=userdata, headers=headers)
-        role_id = json.loads(response.content)['id']
+        self.command_get_role = 'management/roles'
+        self.url_create_role = '{}/{}'.format(HOST, self.command_get_role)
+        response = self.s.get(self.url_create_role, headers=headers)
+        role_id = json.loads(response.content)['data'][1]['id']
         self.config = SafeConfigParser()
         self.config.read('config.ini')
         self.config.set('for_test', 'role_id', str(role_id))
@@ -345,11 +344,11 @@ class Test_012_Tag_Attaching_To_Category(unittest.TestCase):
         self.tag_id = 'tag_id'
         self.tag_type = 'tag_type=App\\Tag'
         self.matching_criteria = 'matching_criteria=areWordsSimilar'
-        self.importancy = 'importancy=0.1'
+        self.importance = 'importance=medium'
         self.url_tag_attaching_to_category = '{}/{}?{}={}&{}={}&{}&{}&{}'.format(HOST, self.command_tag_attaching_to_category,
                                                                               self.category_id, index, self.tag_id,
                                                                               identifier, self.tag_type, self.matching_criteria,
-                                                                              self.importancy)
+                                                                              self.importance)
         response = self.s.post(self.url_tag_attaching_to_category, headers=headers)
 
         self.assertEqual(response.status_code, UPDATED)
@@ -377,13 +376,14 @@ class Test_013_Roles(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_013_Roles, self).__init__(*a, **kw)
         self.s = requests.Session()
+        self.token, self.index = test_authorization()
 
     def test_01_role_show_correctly(self):
-        token, index = test_authorization()
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
+
+        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
         self.command_get_all_roles = 'management/roles'
         self.url_get_all_roles = '{}/{}'.format(HOST, self.command_get_all_roles)
-        response = self.s.post(self.url_get_all_roles, headers=headers)
+        response = self.s.get(self.url_get_all_roles, headers=headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
@@ -418,7 +418,7 @@ class Test_014_ROLE_CRUD(unittest.TestCase):
         self.command_update_roles = 'management/roles/update'
         self.url_update_roles = '{}/{}/{}'.format(HOST, self.command_update_roles, role_id)
         roledata = json.dumps({"name": "AutoTestUpdate"})
-        response = self.s.post(self.url_update_roles, data=roledata, headers=headers)
+        response = self.s.patch(self.url_update_roles, data=roledata, headers=headers)
         name = json.loads(response.content)['name']
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -442,7 +442,7 @@ class Test_014_ROLE_CRUD(unittest.TestCase):
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
         self.command_delete_roles = 'management/roles/delete'
         self.url_delete_roles = '{}/{}/{}'.format(HOST, self.command_delete_roles, role_id)
-        response = self.s.get(self.url_delete_roles, headers=headers)
+        response = self.s.delete(self.url_delete_roles, headers=headers)
 
         self.assertEqual(response.status_code, SUCCESS)
         self.config.set('for_test', 'role_id_for_crud', '')
@@ -498,11 +498,11 @@ class Test_015_business_CRUD(unittest.TestCase):
         business_id = self.config.getint('for_test', 'business_id_for_crud')
         self.command_business_update = 'management/businesses/update'
         self.url_business_update = '{}/{}/{}'.format(HOST, self.command_business_update, business_id)
-        userdata = json.dumps({"title": "BusinessUpdate"})
+        userdata = json.dumps({"name": "BusinessUpdate"})
         response = self.s.patch(self.url_business_update, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
-        title = json.loads(response.content)['title']
+        title = json.loads(response.content)['name']
         self.assertEqual(title, "BusinessUpdate")
 
 # GET /management/businesses/show
@@ -758,7 +758,7 @@ class Test_021_offer_CRUD(unittest.TestCase):
 
         self.assertEqual(response.status_code, SUCCESS)
         status = json.loads(response.content)['data'][0]['status']
-        self.assertEqual(status, 'publish')
+        self.assertEqual(status, 'published')
 
 # POST /management/offers/unpublish
     def test_07_offer_unpublish(self):

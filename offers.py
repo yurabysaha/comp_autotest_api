@@ -16,28 +16,45 @@ class Test_001_All_offers(unittest.TestCase):
         self.isocode = 'isocode1'
         self.isocode_value = 'sv'
         self.latitude = 'latitude'
-        latitude_value = 59.3258414
+        self.latitude_value = 59.3258414
         self.longitude = 'longitude'
-        longitude_value = 17.7073729
+        self.longitude_value = 17.7073729
         self.page = 'page=1'
         self.limit = 'limit10'
-        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
-                                                               self.isocode_value, self.latitude, latitude_value,
-                                                               self.longitude, longitude_value)
-        self.url_get_offers = '{}/{}?{}&{}'.format(HOST, self.command_get_offers, self.page, self.limit)
         self.s = requests.Session()
 
     def test_01_all_offers_opened(self):
+        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
+                                                               self.isocode_value, self.latitude, self.latitude_value,
+                                                               self.longitude, self.longitude_value)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         response = self.s.get(self.url_all_offers, headers=headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
     def test_02_get_offers(self):
+        self.url_get_offers = '{}/{}?{}&{}'.format(HOST, self.command_get_offers, self.page, self.limit)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         response = self.s.get(self.url_get_offers, headers=headers)
 
         self.assertEqual(response.status_code, SUCCESS)
+
+    def test_03_test_pagination(self):
+
+        self.url_get_offers = '{}/{}?{}&{}'.format(HOST, self.command_get_offers, self.page, self.limit)
+        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
+        response = self.s.get(self.url_get_offers, headers=headers)
+        page1data = json.loads(response.content)['data']
+
+        self.assertEqual(response.status_code, SUCCESS)
+
+        self.page = 'page=2'
+        self.url_get_offers = '{}/{}?{}&{}'.format(HOST, self.command_get_offers, self.page, self.limit)
+        response = self.s.get(self.url_get_offers, headers=headers)
+
+        self.assertEqual(response.status_code, SUCCESS)
+        self.assertNotEqual(page1data, json.loads(response.content)['data'])
+
 
 class Test_002_offer_Show(unittest.TestCase):
 
@@ -151,8 +168,7 @@ class Test_004_offer_liking_disliking(unittest.TestCase):
         self.assertEqual(response.status_code, FINISHED)
 
         self.command_offer_dislike = 'offers/dislike'
-        self.url_offer_dislike = '{}/{}?{}={}'.format(HOST, self.command_offer_dislike, self.offer_id,
-                                                          identificator)
+        self.url_offer_dislike = '{}/{}?{}={}'.format(HOST, self.command_offer_dislike, self.offer_id, identificator)
         response = self.s.post(self.url_offer_dislike, headers=headers)
 
         self.assertEqual(response.status_code, FINISHED)

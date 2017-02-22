@@ -141,7 +141,6 @@ class Test_004_My_Profile_LogOut(unittest.TestCase):
 
         self.url_sign_in = '{}/{}'.format(HOST, self.command_sign_in)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
-        passvalue = "string"
         userdata = json.dumps({"email": EMAIL, "password": PSW})
         response = self.s.post(self.url_sign_in, data=userdata, headers=headers)
         auth_token = response.headers['Authorization']

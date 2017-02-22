@@ -5,10 +5,10 @@ from authorization import test_authorization
 from baseSettings import *
 
 
-class Test_001_All_tags(unittest.TestCase):
+class ATest_001_All_tags(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_001_All_tags, self).__init__(*a, **kw)
+        super(ATest_001_All_tags, self).__init__(*a, **kw)
         self.s = requests.Session()
         self.token, index = test_authorization()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
@@ -20,6 +20,23 @@ class Test_001_All_tags(unittest.TestCase):
         response = self.s.get(self.url_all_tags, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
+
+    def test_02_test_pagination(self):
+
+        self.command_all_tags = 'management/tags'
+        page = 'page=1&limit=10'
+        self.url_all_tags = '{}/{}?{}'.format(HOST, self.command_all_tags, page)
+        response = self.s.get(self.url_all_tags, headers=self.headers)
+
+        self.assertEqual(response.status_code, SUCCESS)
+        page1data = json.loads(response.content)['data']
+
+        page = 'page=2&limit=10'
+        self.url_all_tags = '{}/{}?{}'.format(HOST, self.command_all_tags, page)
+        response = self.s.get(self.url_all_tags, headers=self.headers)
+
+        self.assertEqual(response.status_code, SUCCESS)
+        self.assertNotEqual(page1data, json.loads(response.content)['data'])
 
 
 class Test_002_tag_Show(unittest.TestCase):

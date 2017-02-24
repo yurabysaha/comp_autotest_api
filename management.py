@@ -159,7 +159,7 @@ class Test_006_user_delete(unittest.TestCase):
         self.url_user_delete = '{}/{}/{}'.format(HOST, self.command_user_delete, user_id)
         response = self.s.delete(self.url_user_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
 # POST /management/users/attach/role
@@ -194,7 +194,7 @@ class Test_007_Role_Attaching(unittest.TestCase):
                                                           self.role_id, role_id)
         response = self.s.post(self.url_role_attach, headers=headers)
 
-        self.assertEqual(response.status_code, UPDATED)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
 # DELETE /management/users/detach/role
@@ -220,7 +220,7 @@ class Test_008_Role_Detaching(unittest.TestCase):
                                                                  user_id, self.role_id, role_id)
         response = self.s.delete(self.url_role_detach, headers=headers)
 
-        self.assertEqual(response.status_code, UPDATED)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
                 # --------------------- MANAGEMENT CATEGORIES --------------------------- #
@@ -290,7 +290,7 @@ class Test_011_category_Update_And_Delete(unittest.TestCase):
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, identifier)
         response = self.s.delete(self.url_category_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
     def test_02_not_deleted_because_of_alphabetical_id(self):
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
@@ -351,7 +351,7 @@ class Test_012_Tag_Attaching_To_Category(unittest.TestCase):
                                                                               self.importance)
         response = self.s.post(self.url_tag_attaching_to_category, headers=headers)
 
-        self.assertEqual(response.status_code, UPDATED)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_tag_detaching_to_category = 'management/categories/detach/tag'
         self.url_tag_detaching_to_category = '{}/{}?{}={}&{}={}&{}'.format(HOST, self.command_tag_detaching_to_category,
@@ -359,13 +359,13 @@ class Test_012_Tag_Attaching_To_Category(unittest.TestCase):
                                                                            identifier, self.tag_type)
         response = self.s.delete(self.url_tag_detaching_to_category, headers=headers)
 
-        self.assertEqual(response.status_code, UPDATED)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_category_delete = 'management/categories/delete'
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, index)
         response = self.s.delete(self.url_category_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
              # --------------------- MANAGEMENT ROLE --------------------------- #
@@ -444,7 +444,7 @@ class Test_014_ROLE_CRUD(unittest.TestCase):
         self.url_delete_roles = '{}/{}/{}'.format(HOST, self.command_delete_roles, role_id)
         response = self.s.delete(self.url_delete_roles, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
         self.config.set('for_test', 'role_id_for_crud', '')
         with open('config.ini', 'w') as f:
             self.config.write(f)
@@ -483,13 +483,12 @@ class Test_015_business_CRUD(unittest.TestCase):
 
     def test_02_business_not_created_because_empty_userdata(self):
 
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         self.command_business_create = 'management/businesses/create'
         self.url_business_create = '{}/{}'.format(HOST, self.command_business_create)
         userdata = json.dumps({})
-        response = self.s.post(self.url_business_create, data=userdata, headers=headers)
+        response = self.s.post(self.url_business_create, data=userdata, headers=self.headers)
 
-        self.assertEqual(response.status_code, UNAUTHORIZED)
+        self.assertEqual(response.status_code, BADDATA)
 
 # PATCH /management/businesses/update
     def test_03_business_update_correctly(self):
@@ -526,7 +525,7 @@ class Test_015_business_CRUD(unittest.TestCase):
         self.url_business_delete = '{}/{}/{}'.format(HOST, self.command_business_delete, business_id)
         response = self.s.delete(self.url_business_delete, headers=self.headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
         self.config.read('config.ini')
         self.config.set('for_test', 'business_id_for_crud', '')
         with open('config.ini', 'w') as f:
@@ -799,7 +798,7 @@ class Test_021_offer_CRUD(unittest.TestCase):
         self.url_offer_delete = '{}/{}/{}'.format(HOST, self.command_offer_delete, offer_id)
         response = self.s.delete(self.url_offer_delete, headers=self.headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
         self.config.read('config.ini')
         self.config.set('for_test', 'offer_id_for_crud', '')
@@ -869,7 +868,7 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
                                                                             identifier)
         response = self.s.post(self.url_offer_attach_extra_categories, headers=headers)
 
-        self.assertEqual(response.status_code, UPDATED)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
         self.url_offer_detach_extra_categories = '{}/{}?{}={}&{}={}'.format(HOST,
                                                                             self.command_offer_detach_extra_category,
@@ -877,13 +876,13 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
                                                                             self.category_ids, identifier)
         response = self.s.delete(self.url_offer_detach_extra_categories, headers=headers)
 
-        self.assertEqual(response.status_code, UPDATED)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_category_delete = 'management/categories/delete'
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, identifier)
         response = self.s.delete(self.url_category_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_offer_delete = 'management/offers/delete'
         self.url_offer_delete = '{}/{}/{}'.format(HOST, self.command_offer_delete, index)
@@ -967,7 +966,7 @@ class Test_004_attach_image_to_business(unittest.TestCase):
         self.url_business_delete = '{}/{}/{}'.format(HOST, self.command_business_delete, identificator)
         response = self.s.delete(self.url_business_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
 class Test_004_Image_Uploading(unittest.TestCase):
@@ -984,20 +983,19 @@ class Test_004_Image_Uploading(unittest.TestCase):
         self.partner_id = 'partner_id'
         self.image_id = 'image_id'
         self.command_image_upload = 'management/images/upload'
-        self.command_image_delete = 'management/images/delete'
         self.url_image_upload = '{}/{}'.format(HOST, self.command_image_upload)
         postdata = {}
         files = {'image': open('picture.jpg', 'rb')}
-
         response = self.s.post(self.url_image_upload, headers=headers, data=postdata, files=files )
         identificator = json.loads(response.content)['id']
 
         self.assertEqual(response.status_code, SUCCESS)
 
+        self.command_image_delete = 'management/images/delete'
         self.url_image_delete = '{}/{}/{}'.format(HOST, self.command_image_delete, identificator)
         response = self.s.delete(self.url_image_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
 if __name__ == '__main__':

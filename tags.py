@@ -125,7 +125,7 @@ class Test_004_tags_Deleting(unittest.TestCase):
         self.url_tags_delete = '{}/{}/{}'.format(HOST, self.command_tags_delete, identifier)
         response = self.s.delete(self.url_tags_delete, headers=self.headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
     def test_02_not_deleted_because_of_alphabetical_id(self):
 

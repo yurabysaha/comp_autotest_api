@@ -177,7 +177,7 @@ class Test_004_offer_liking_disliking(unittest.TestCase):
         self.url_offer_delete = '{}/{}/{}'.format(HOST, self.command_offer_delete, identificator)
         response = self.s.delete(self.url_offer_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
 if __name__ == '__main__':

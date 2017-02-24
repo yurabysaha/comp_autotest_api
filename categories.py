@@ -66,7 +66,7 @@ class Test_001_category_crud(unittest.TestCase):
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, category_id)
         response = self.s.delete(self.url_category_delete, headers=self.headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
 class Test_002_All_categories(unittest.TestCase):
@@ -178,7 +178,7 @@ class Test_004_Tag_Attaching_To_Category(unittest.TestCase):
                                                                               self.importance)
         response = self.s.post(self.url_tag_attaching_to_category, headers=headers)
 
-        self.assertEqual(response.status_code, UPDATED)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_tag_detaching_to_category = 'management/categories/detach/tag'
         self.url_tag_detaching_to_category = '{}/{}?{}={}&{}={}&{}'.format(HOST, self.command_tag_detaching_to_category,
@@ -186,13 +186,13 @@ class Test_004_Tag_Attaching_To_Category(unittest.TestCase):
                                                                            identifier, self.tag_type)
         response = self.s.delete(self.url_tag_detaching_to_category, headers=headers)
 
-        self.assertEqual(response.status_code, UPDATED)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_category_delete = 'management/categories/delete'
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, index)
         response = self.s.delete(self.url_category_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
 if __name__ == '__main__':

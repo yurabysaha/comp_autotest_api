@@ -4,7 +4,7 @@ import time
 from baseSettings import *
 
 
-def test_authorization():
+def authorization():
         s = requests.Session()
         command_signin = 'auth/signin'
         url_signin = '{}/{}'.format(HOST, command_signin)

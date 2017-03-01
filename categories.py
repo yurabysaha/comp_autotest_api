@@ -2,7 +2,7 @@ import json
 from ConfigParser import SafeConfigParser
 import requests
 import unittest
-from authorization import test_authorization
+from authorization import authorization
 from baseSettings import *
 
 
@@ -12,7 +12,7 @@ class Test_001_category_crud(unittest.TestCase):
         super(Test_001_category_crud, self).__init__(*a, **kw)
         self.s = requests.Session()
         self.config = SafeConfigParser()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
 
     def test_01_category_create(self):
@@ -90,10 +90,10 @@ class Test_003_category_Show(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_003_category_Show, self).__init__(*a, **kw)
         self.s = requests.Session()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
 
     def test_01_category_page_showed_correctly(self):
 
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         self.command_all_categories = 'categories'
         self.isocode = 'isocode1'
         self.isocode_value = 'sv'
@@ -103,37 +103,51 @@ class Test_003_category_Show(unittest.TestCase):
         self.page_number = '1'
         self.page_limit = 'limit'
         self.page_limit_value = '1000'
-
         self.url_all_categories = '{}/{}?{}={}&{}={}&{}={}&{}={}'.format(HOST, self.command_all_categories,
                                                                          self.parent_id, self.parent_id_value,
                                                                          self.isocode, self.isocode_value, self.page,
                                                                          self.page_number, self.page_limit,
                                                                          self.page_limit_value)
-        categories = self.s.get(self.url_all_categories, headers=headers)
+        categories = self.s.get(self.url_all_categories, headers=self.headers)
         m = json.loads(categories.content)
         index = int(m['data'][0]['id'])
 
         self.command_category_show = 'categories/show'
         self.url_category_show = '{}/{}/{}'.format(HOST, self.command_category_show, index)
-        response = self.s.get(self.url_category_show, headers=headers)
+        response = self.s.get(self.url_category_show, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
     def test_02_category_page_short_version_showed_correctly(self):
 
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         self.command_all_categories = 'categories'
-
         self.url_all_categories = '{}/{}'.format(HOST, self.command_all_categories)
-        categories = self.s.get(self.url_all_categories, headers=headers)
+        categories = self.s.get(self.url_all_categories, headers=self.headers)
         m = json.loads(categories.content)
         index = int(m['data'][0]['id'])
 
         self.command_category_show = 'categories/show'
         self.url_category_show = '{}/{}/{}'.format(HOST, self.command_category_show, index)
-        response = self.s.get(self.url_category_show, headers=headers)
+        response = self.s.get(self.url_category_show, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
+
+    def test_03_category_show_withRelations(self):
+
+        self.command_all_categories = 'categories'
+        self.url_all_categories = '{}/{}'.format(HOST, self.command_all_categories)
+        categories = self.s.get(self.url_all_categories, headers=self.headers)
+        m = json.loads(categories.content)
+        index = int(m['data'][0]['id'])
+        keys =['offers', 'parent', 'children', 'offersInCategory', 'favoriteOffers', 'tags', 'specialCategories']
+        for k in keys:
+            self.command_category_show = 'categories/show'
+            self.url_category_show = '{}/{}/{}?withRelations={}'.format(HOST, self.command_category_show, index, k)
+            response = self.s.get(self.url_category_show, headers=self.headers)
+
+            self.assertEqual(response.status_code, SUCCESS)
+            response = json.loads(response.content)
+            self.assertEqual(k in response, True)
 
 
 class Test_004_Tag_Attaching_To_Category(unittest.TestCase):
@@ -143,7 +157,7 @@ class Test_004_Tag_Attaching_To_Category(unittest.TestCase):
         self.s = requests.Session()
 
     def test_01_attaching_tags_to_category(self):
-        token, index = test_authorization()
+        token, index = authorization()
 
         self.command_category_create = 'management/categories/create'
 

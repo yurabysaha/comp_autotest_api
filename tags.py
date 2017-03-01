@@ -1,7 +1,7 @@
 import json
 import requests
 import unittest
-from authorization import test_authorization
+from authorization import authorization
 from baseSettings import *
 
 
@@ -10,7 +10,7 @@ class ATest_001_All_tags(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(ATest_001_All_tags, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, index = test_authorization()
+        self.token, index = authorization()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
 
     def test_01_all_tags_opened(self):
@@ -44,7 +44,7 @@ class Test_002_tag_Show(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_002_tag_Show, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
 
     def test_01_tag_page_showed_correctly(self):
@@ -75,13 +75,30 @@ class Test_002_tag_Show(unittest.TestCase):
 
         self.assertEqual(response.status_code, SUCCESS)
 
+    def test_03_tag_show_withRelations(self):
+        self.command_all_tags = 'management/tags'
+        self.url_all_tags = '{}/{}'.format(HOST, self.command_all_tags)
+        tags = self.s.get(self.url_all_tags, headers=self.headers)
+        m = json.loads(tags.content)
+        index = int(m['data'][0]['id'])
+        keys = ['categories', 'parentTags', 'parentCombinedTags']
+
+        for k in keys:
+            self.command_tag_show = 'management/tags/show'
+            self.url_tag_show = '{}/{}/{}?withRelations={}'.format(HOST, self.command_tag_show, index, k)
+            response = self.s.get(self.url_tag_show, headers=self.headers)
+
+            self.assertEqual(response.status_code, SUCCESS)
+            response = json.loads(response.content)
+            self.assertEqual(k in response, True)
+
 
 class Test_003_tags_Creation(unittest.TestCase):
 
     def __init__(self, *a, **kw):
         super(Test_003_tags_Creation, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
 
     def test_01_tags_created_correctly(self):
@@ -99,7 +116,7 @@ class Test_004_tags_Deleting(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_004_tags_Deleting, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
 
     def test_01_tags_deleted_correctly(self):

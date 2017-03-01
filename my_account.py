@@ -1,7 +1,7 @@
 import json
 import requests
 import unittest
-from authorization import test_authorization
+from authorization import authorization
 from baseSettings import *
 import time
 
@@ -13,11 +13,11 @@ class Test_001_My_Profile_View(unittest.TestCase):
         self.command_profile_view = 'me'
         self.url_profile_view = '{}/{}'.format(HOST, self.command_profile_view)
         self.s = requests.Session()
+        self.token, self.index = authorization()
 
     def test_01_user_profile_opened(self):
 
-        token, index = test_authorization()
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
+        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
         response = self.s.get(self.url_profile_view, headers=headers)
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -46,6 +46,30 @@ class Test_001_My_Profile_View(unittest.TestCase):
 
         self.assertEqual(response.status_code, EXPIRED_TOKEN)
 
+    def test_05_user_profile_withRelations(self):
+
+        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
+        keys = ['orders','roles','favoriteOffers','avatar']
+        for k in keys:
+            self.url_profile_view = '{}/{}?withRelations={}'.format(HOST, self.command_profile_view, k)
+            response = self.s.get(self.url_profile_view, headers=headers)
+
+            self.assertEqual(response.status_code, SUCCESS)
+            response = json.loads(response.content)
+            self.assertEqual(k in response, True)
+
+    def test_06_user_profile_with_keys(self):
+
+        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
+        keys = ['email', 'full_name', 'birthday', 'phone']
+        for k in keys:
+            self.url_profile_view = '{}/{}?keys={}'.format(HOST, self.command_profile_view, k)
+            response = self.s.get(self.url_profile_view, headers=headers)
+
+            self.assertEqual(response.status_code, SUCCESS)
+            response = json.loads(response.content)
+            self.assertEqual(k in response, True)
+
 
 class Test_002_My_Profile_Edit(unittest.TestCase):
 
@@ -57,7 +81,7 @@ class Test_002_My_Profile_Edit(unittest.TestCase):
 
     def test_01_user_profile_edited(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         edited_name = "EditedName"
         userdata = json.dumps({"full_name": edited_name})

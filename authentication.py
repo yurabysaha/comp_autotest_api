@@ -4,7 +4,7 @@ import unittest
 from baseSettings import *
 import time
 
-from authorization import test_authorization
+from authorization import authorization
 
 
 class Test_001_ServerRegister(unittest.TestCase):
@@ -118,7 +118,7 @@ class Test_Refresh_Token(unittest.TestCase):
 
     def test_01_refreshed_token_successfully(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         response = self.s.get(self.url_refresh_token, headers=headers)
         newToken = response.headers['Authorization']

@@ -3,7 +3,7 @@ import requests
 import unittest
 import time
 
-from authorization import test_authorization
+from authorization import authorization
 from baseSettings import *
 
 
@@ -61,28 +61,76 @@ class Test_002_offer_Show(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_002_offer_Show, self).__init__(*a, **kw)
         self.s = requests.Session()
-
-    def test_01_offer_page_showed_correctly(self):
-
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
         self.command_all_offers = 'offers'
         self.isocode = 'isocode1'
         self.isocode_value = 'sv'
         self.latitude = 'latitude'
-        latitude_value  = 59.3258414
+        self.latitude_value = 59.3258414
         self.longitude = 'longitude'
-        longitude_value = 17.7073729
+        self.longitude_value = 17.7073729
 
-        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode, self.isocode_value, self.latitude, latitude_value, self.longitude, longitude_value)
-        offers = self.s.get(self.url_all_offers, headers=headers)
+    def test_01_show_offer(self):
+
+        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
+                                                               self.isocode_value, self.latitude, self.latitude_value,
+                                                               self.longitude, self.longitude_value)
+        offers = self.s.get(self.url_all_offers, headers=self.headers)
         m = json.loads(offers.content)
         index = int(m['data'][1]['id'])
 
         self.command_offer_show = 'offers/show'
-        self.url_offer_show = '{}/{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_offer_show, index, self.isocode, self.isocode_value, self.latitude, latitude_value, self.longitude, longitude_value)
-        response = self.s.get(self.url_offer_show, headers=headers)
+        self.url_offer_show = '{}/{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_offer_show, index, self.isocode,
+                                                                  self.isocode_value, self.latitude, self.latitude_value,
+                                                                  self.longitude, self.longitude_value)
+        response = self.s.get(self.url_offer_show, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
+
+    def test_02_show_offer_with_keys(self):
+        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
+                                                               self.isocode_value, self.latitude, self.latitude_value,
+                                                               self.longitude, self.longitude_value)
+        offers = self.s.get(self.url_all_offers, headers=self.headers)
+        m = json.loads(offers.content)
+        offer = m['data'][1]
+        offer_id = int(m['data'][1]['id'])
+
+        self.command_offer_show = 'offers/show'
+        keys = ['description', 'price', 'title', 'status']
+        for k in keys:
+            self.url_offer_show = '{}/{}/{}?{}={}&{}={}&{}={}&keys={}'.format(HOST, self.command_offer_show, offer_id, self.isocode,
+                                                                      self.isocode_value, self.latitude,
+                                                                      self.latitude_value, self.longitude,
+                                                                      self.longitude_value, k)
+            response = self.s.get(self.url_offer_show, headers=self.headers)
+
+            self.assertEqual(response.status_code, SUCCESS)
+            response = json.loads(response.content)
+            self.assertEqual(offer[k], response[k])
+
+    def test_03_show_offer_withRelations(self):
+        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
+                                                               self.isocode_value, self.latitude, self.latitude_value,
+                                                               self.longitude, self.longitude_value)
+        offers = self.s.get(self.url_all_offers, headers=self.headers)
+        m = json.loads(offers.content)
+        offer = m['data'][1]
+        offer_id = int(m['data'][1]['id'])
+
+        self.command_offer_show = 'offers/show'
+        keys = ['business', 'partner', 'orders', 'mainCategory', 'extraCategories', 'form']
+        for k in keys:
+            self.url_offer_show = '{}/{}/{}?{}={}&{}={}&{}={}&withRelations={}'.format(HOST, self.command_offer_show,
+                                                                                        offer_id, self.isocode,
+                                                                                        self.isocode_value, self.latitude,
+                                                                                        self.latitude_value, self.longitude,
+                                                                                        self.longitude_value, k)
+            response = self.s.get(self.url_offer_show, headers=self.headers)
+
+            self.assertEqual(response.status_code, SUCCESS)
+            response = json.loads(response.content)
+            self.assertEqual(k in response, True)
 
 
 class Test_003_bestOffers(unittest.TestCase):
@@ -120,7 +168,7 @@ class Test_004_offer_liking_disliking(unittest.TestCase):
 
     def __init__(self, *a, **kw):
         super(Test_004_offer_liking_disliking, self).__init__(*a, **kw)
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
         self.s = requests.Session()
 
     def test_01_offer_liked_and_disliked_correctly(self):

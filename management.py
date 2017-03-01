@@ -6,7 +6,7 @@ import unittest
 import random
 from baseSettings import *
 import time
-from authorization import test_authorization
+from authorization import authorization
 
 
         # --------------------- MANAGEMENT USERS ---------------------------#
@@ -22,7 +22,7 @@ class Test_001_All_users(unittest.TestCase):
         self.s = requests.Session()
 
     def test_01_all_users_opened(self):
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         response = self.s.get(self.url_all_users, headers=headers)
@@ -39,7 +39,7 @@ class Test_002_user_Show(unittest.TestCase):
 
     def test_01_user_page_showed_correctly(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_all_users = 'management/users'
@@ -62,7 +62,7 @@ class Test_003_user_Creation(unittest.TestCase):
 
     def test_01_user_created_correctly(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_user_create = 'management/users/create'
@@ -79,7 +79,7 @@ class Test_003_user_Creation(unittest.TestCase):
 
     def test_02_user_not_created_empty_values(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_user_create = 'management/users/create'
@@ -91,7 +91,7 @@ class Test_003_user_Creation(unittest.TestCase):
 
     def test_03_user_not_created_wrong_email_format(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_user_create = 'management/users/create'
@@ -114,7 +114,7 @@ class Test_004_user_update(unittest.TestCase):
         self.s = requests.Session()
 
     def test_01_user_update_correctly(self):
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(5)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_user_update = 'management/users/update'
@@ -171,7 +171,7 @@ class Test_007_Role_Attaching(unittest.TestCase):
     def test_01_role_is_attached_successfully(self):
 
         #get one role before attach
-        token, user_id = test_authorization()
+        token, user_id = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
@@ -207,7 +207,7 @@ class Test_008_Role_Detaching(unittest.TestCase):
 
     def test_01_role_is_detached_successfully(self):
 
-        token, user_id = test_authorization()
+        token, user_id = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
@@ -234,7 +234,7 @@ class Test_009_category_Creation(unittest.TestCase):
 
     def test_01_category_created_correctly(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_category_create = 'management/categories/create'
@@ -262,7 +262,7 @@ class Test_011_category_Update_And_Delete(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_011_category_Update_And_Delete, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
 
     def test_01_category_deleted_correctly(self):
         # Create before update and delete
@@ -320,7 +320,7 @@ class Test_012_Tag_Attaching_To_Category(unittest.TestCase):
         self.s = requests.Session()
 
     def test_01_attaching_tags_to_category(self):
-        token, index = test_authorization()
+        token, index = authorization()
         self.command_category_create = 'management/categories/create'
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.url_category_create = '{}/{}'.format(HOST, self.command_category_create)
@@ -376,7 +376,7 @@ class Test_013_Roles(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_013_Roles, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
 
     def test_01_role_show_correctly(self):
 
@@ -392,7 +392,7 @@ class Test_014_ROLE_CRUD(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_014_ROLE_CRUD, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
         self.config = SafeConfigParser()
 
     def test_01_role_create(self):
@@ -458,7 +458,7 @@ class Test_015_business_CRUD(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_015_business_CRUD, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
         self.config = SafeConfigParser()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
 
@@ -545,7 +545,7 @@ class Test_016_All_Partners(unittest.TestCase):
 
         self.command_all_partners = 'management/partners'
         self.url_all_partners = '{}/{}'.format(HOST, self.command_all_partners)
-        token, index = test_authorization()
+        token, index = authorization()
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         response = self.s.get(self.url_all_partners, headers=headers)
 
@@ -560,7 +560,7 @@ class Test_017_Partner_Show(unittest.TestCase):
 
     def test_01_partner_page_showed_correctly(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_all_partners = 'management/partners'
         self.url_all_partners = '{}/{}'.format(HOST, self.command_all_partners)
@@ -605,7 +605,7 @@ class Test_019_Partner_Updating(unittest.TestCase):
 
         def test_01_partner_updated_correctly(self):
 
-            token, index = test_authorization()
+            token, index = authorization()
             time.sleep(3)
             headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
             index = 6
@@ -630,7 +630,7 @@ class Test_020_ServerActions(unittest.TestCase):
 
     def test_01_all_actions_showed_successfully(self):
 
-        token, index  = test_authorization()
+        token, index  = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         response = self.s.get(self.url_all_actions, headers=headers)
@@ -645,7 +645,7 @@ class Test_021_offer_CRUD(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_021_offer_CRUD, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = test_authorization()
+        self.token, self.index = authorization()
         self.config = SafeConfigParser()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
 
@@ -815,7 +815,7 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
 
     def test_01_offer_added_and_removed_extra_categories_correctly(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_category_create = 'management/categories/create'
@@ -898,7 +898,7 @@ class Test_004_Image_Attaching(unittest.TestCase):
 
     def test_01_image_is_attached_successfully(self):
 
-        token, user_id = test_authorization()
+        token, user_id = authorization()
         time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.partner_id = 'partner_id'
@@ -928,7 +928,7 @@ class Test_004_attach_image_to_business(unittest.TestCase):
 
     def test_01_image_is_attached_successfully(self):
 
-        token, index = test_authorization()
+        token, index = authorization()
         time.sleep(5)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_business_create = 'management/businesses/create'
@@ -977,7 +977,7 @@ class Test_004_Image_Uploading(unittest.TestCase):
 
     def test_01_image_is_upload_successfully(self):
 
-        token, user_id = test_authorization()
+        token, user_id = authorization()
         time.sleep(3)
         headers = {'Authorization': token}
         self.partner_id = 'partner_id'

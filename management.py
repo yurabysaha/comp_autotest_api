@@ -888,7 +888,7 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
         self.url_offer_delete = '{}/{}/{}'.format(HOST, self.command_offer_delete, index)
         response = self.s.delete(self.url_offer_delete, headers=headers)
 
-        self.assertEqual(response.status_code, SUCCESS)
+        self.assertEqual(response.status_code, NO_CONTENT)
 
 
 class Test_004_Image_Attaching(unittest.TestCase):

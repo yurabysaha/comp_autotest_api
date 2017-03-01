@@ -21,3 +21,6 @@ class Test_001_get_breadcrumbs(unittest.TestCase):
         self.assertEqual(response.status_code, SUCCESS)
         response = json.loads(response.content)
         self.assertEqual(response[0]['id'], category_id)
+
+if __name__ == '__main__':
+    unittest.main()

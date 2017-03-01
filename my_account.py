@@ -28,7 +28,7 @@ class Test_001_My_Profile_View(unittest.TestCase):
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         response = self.s.get(self.url_profile_view, headers=headers)
 
-        self.assertEqual(response.status_code, UNAUTHORIZED)
+        self.assertEqual(response.status_code, BADDATA)
 
     def test_03_user_profile_not_opened_because_wrong_token(self):
 
@@ -36,7 +36,7 @@ class Test_001_My_Profile_View(unittest.TestCase):
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         response = self.s.get(self.url_profile_view, headers=headers)
 
-        self.assertEqual(response.status_code, UNAUTHORIZED)
+        self.assertEqual(response.status_code, BADDATA)
 
     def test_04_user_profile_not_opened_because_expired_token(self):
 

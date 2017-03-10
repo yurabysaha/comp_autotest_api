@@ -98,7 +98,7 @@ class Test_003_category_Show(unittest.TestCase):
         self.isocode = 'isocode1'
         self.isocode_value = 'sv'
         self.parent_id = 'parent_id'
-        self.parent_id_value = '2'
+        self.parent_id_value = 'null'
         self.page = 'page'
         self.page_number = '1'
         self.page_limit = 'limit'
@@ -139,7 +139,7 @@ class Test_003_category_Show(unittest.TestCase):
         categories = self.s.get(self.url_all_categories, headers=self.headers)
         m = json.loads(categories.content)
         index = int(m['data'][0]['id'])
-        keys =['offers', 'parent', 'children', 'offersInCategory', 'favoriteOffers', 'tags', 'specialCategories']
+	keys = ['offers','parent','children','offersInCategory','favoriteOffers','tags','specialCategories']
         for k in keys:
             self.command_category_show = 'categories/show'
             self.url_category_show = '{}/{}/{}?withRelations={}'.format(HOST, self.command_category_show, index, k)
@@ -198,7 +198,7 @@ class Test_004_Tag_Attaching_To_Category(unittest.TestCase):
         self.url_tag_detaching_to_category = '{}/{}?{}={}&{}={}&{}'.format(HOST, self.command_tag_detaching_to_category,
                                                                            self.category_id, index, self.tag_id,
                                                                            identifier, self.tag_type)
-        response = self.s.delete(self.url_tag_detaching_to_category, headers=headers)
+        response = self.s.post(self.url_tag_detaching_to_category, headers=headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 

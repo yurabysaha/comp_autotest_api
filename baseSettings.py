@@ -1,5 +1,5 @@
 
-HOST = 'http://54.93.67.41/api/v1'
+HOST = 'http://52.57.250.123/api/v1'
 DEFAULT_HEADER = 'application/json'
 
 SUCCESS = 200
@@ -17,8 +17,8 @@ BADDATA = 422
 UPGRADE_REQUIRED = 426
 WRONGID =500
 
-EMAIL = 'tester@mailinator.com'
-PSW = "123456"
+EMAIL = 'yurabysaha@gmail.com'
+PSW = "12345678"
 FACEBOOK_TOKEN = "EAAZAh9h7TSFUBAMGrjHiiW0E3fqIaEVMXCYpkPwXKFqh73syZAIugIiQRhankr7UIjPQJ6EryDepyJrZBZAXQsZBbQJE0ZAeqNM5ZBl8EuMg3ZBch1LWuZApQR4dKXyZBvloLv8ZCXtzH286iVYftnwEus3zMeql9AIaJAZD"
 
 

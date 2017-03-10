@@ -23,7 +23,6 @@ class Test_001_All_users(unittest.TestCase):
 
     def test_01_all_users_opened(self):
         token, index = authorization()
-        time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         response = self.s.get(self.url_all_users, headers=headers)
 
@@ -40,7 +39,6 @@ class Test_002_user_Show(unittest.TestCase):
     def test_01_user_page_showed_correctly(self):
 
         token, index = authorization()
-        time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_all_users = 'management/users'
         self.url_all_users = '{}/{}'.format(HOST, self.command_all_users)
@@ -63,15 +61,13 @@ class Test_003_user_Creation(unittest.TestCase):
     def test_01_user_created_correctly(self):
 
         token, index = authorization()
-        time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_user_create = 'management/users/create'
         self.url_user_create = '{}/{}'.format(HOST, self.command_user_create)
-        words = ["python", "jumble", "easy", "difficult", "answer", "xylophone"]
+        words = ["python", "jumble", "easy", "difficult", "answer", "xophone"]
         newValue = random.choice(words)
-        nameunique = "testuser" + time.strftime("%d%m%Y" + "%H%M%S") + "@" + random.choice(words) + ".com"
         email_value = time.strftime("%d%m%Y" + "%H%M%S") + "@" + "test.com"
-        userdata = json.dumps({"full_name": newValue, "email": email_value, "password": "12345678", "password_confirmation": "12345678", "birthday": "1990-20-06", "gender": "male"})
+        userdata = json.dumps({"full_name": newValue, "email": email_value, "password": "12345678", "password_confirmation": "12345678", "birthday": "1990-06-20", "gender": "male"})
 
         response = self.s.post(self.url_user_create, data=userdata, headers=headers)
 
@@ -80,7 +76,6 @@ class Test_003_user_Creation(unittest.TestCase):
     def test_02_user_not_created_empty_values(self):
 
         token, index = authorization()
-        time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_user_create = 'management/users/create'
         self.url_user_create = '{}/{}'.format(HOST, self.command_user_create)
@@ -115,7 +110,6 @@ class Test_004_user_update(unittest.TestCase):
 
     def test_01_user_update_correctly(self):
         token, index = authorization()
-        time.sleep(5)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_user_update = 'management/users/update'
         self.url_user_update = '{}/{}/{}'.format(HOST, self.command_user_update, index)
@@ -143,7 +137,7 @@ class Test_006_user_delete(unittest.TestCase):
         self.s = requests.Session()
 
     def test_01_user_deleted_correctly(self):
-
+        token, index = authorization()
         #Creating user before deleting
         self.command_signup = 'auth/signup'
         self.url_signup = '{}/{}'.format(HOST, self.command_signup)
@@ -151,11 +145,10 @@ class Test_006_user_delete(unittest.TestCase):
         email_value = time.strftime("%d%m%Y" + "%H%M%S") + "@" + "test.com"
         userdata = json.dumps({"email": email_value, "full_name": "Test User"})
         response = self.s.post(self.url_signup, data=userdata, headers=headers)
-        auth_token = response.headers['Authorization']
         user_id = json.loads(response.content)['id']
 
         self.command_user_delete = 'management/users/delete'
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': auth_token}
+        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.url_user_delete = '{}/{}/{}'.format(HOST, self.command_user_delete, user_id)
         response = self.s.delete(self.url_user_delete, headers=headers)
 
@@ -163,64 +156,63 @@ class Test_006_user_delete(unittest.TestCase):
 
 
 # POST /management/users/attach/role
-class Test_007_Role_Attaching(unittest.TestCase):
+class Test_007_Role_Attach_and_Detach(unittest.TestCase):
     def __init__(self, *a, **kw):
-        super(Test_007_Role_Attaching, self).__init__(*a, **kw)
+        super(Test_007_Role_Attach_and_Detach, self).__init__(*a, **kw)
         self.s = requests.Session()
+        token, index = authorization()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
+        self.config = SafeConfigParser()
 
     def test_01_role_is_attached_successfully(self):
-
         #get one role before attach
-        token, user_id = authorization()
-        time.sleep(3)
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
-
         self.command_get_role = 'management/roles'
         self.url_create_role = '{}/{}'.format(HOST, self.command_get_role)
-        response = self.s.get(self.url_create_role, headers=headers)
+        response = self.s.get(self.url_create_role, headers=self.headers)
         role_id = json.loads(response.content)['data'][1]['id']
-        self.config = SafeConfigParser()
+
         self.config.read('config.ini')
-        self.config.set('for_test', 'role_id', str(role_id))
+        self.config.set('attach_role', 'role_id', str(role_id))
         with open('config.ini', 'w') as f:
             self.config.write(f)
 
         self.assertEqual(response.status_code, SUCCESS)
 
+        # Creating user before attach role
+        self.command_signup = 'auth/signup'
+        self.url_signup = '{}/{}'.format(HOST, self.command_signup)
+        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
+        email_value = time.strftime("%d%m%Y" + "%H%M%S") + "@" + "test.com"
+        userdata = json.dumps({"email": email_value, "full_name": "Test User"})
+        response = self.s.post(self.url_signup, data=userdata, headers=headers)
+        user_id = json.loads(response.content)['id']
+
+        self.config.set('attach_role', 'user_id', str(user_id))
+        with open('config.ini', 'w') as f:
+            self.config.write(f)
+
         self.command_role_attach = 'management/users/attach/role'
-        self.userId = 'userId'
-        self.role_id = 'role_id'
-        self.url_role_attach = '{}/{}?{}={}&{}={}'.format(HOST, self.command_role_attach,self.userId, user_id,
-                                                          self.role_id, role_id)
-        response = self.s.post(self.url_role_attach, headers=headers)
+        self.url_role_attach = '{}/{}?userId={}&role_id={}'.format(HOST, self.command_role_attach, user_id, role_id)
+        response = self.s.post(self.url_role_attach, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
-
 
 # DELETE /management/users/detach/role
-class Test_008_Role_Detaching(unittest.TestCase):
-    def __init__(self, *a, **kw):
-        super(Test_008_Role_Detaching, self).__init__(*a, **kw)
-        self.s = requests.Session()
-        self.config = SafeConfigParser()
-        self.config.read('config.ini')
-
-    def test_01_role_is_detached_successfully(self):
-
-        token, user_id = authorization()
-        time.sleep(3)
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
-
-        role_id = self.config.getint('for_test', 'role_id')
+    def test_02_role_is_detached_successfully(self):
+        role_id = self.config.getint('attach_role', 'role_id')
+        user_id = self.config.getint('attach_role', 'user_id')
 
         self.command_role_detach = 'management/users/detach/role'
-        self.userId = 'userId'
-        self.role_id = 'role_id'
-        self.url_role_detach = '{}/{}?{}={}&{}={}'.format(HOST, self.command_role_detach, self.userId,
-                                                                 user_id, self.role_id, role_id)
-        response = self.s.delete(self.url_role_detach, headers=headers)
+        self.url_role_detach = '{}/{}?userId={}&role_id={}'.format(HOST, self.command_role_attach, user_id, role_id)
+        response = self.s.delete(self.url_role_detach, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
+
+        self.config.read('config.ini')
+        self.config.set('attach_role', 'role_id', '')
+        self.config.set('attach_role', 'user_id', '')
+        with open('config.ini', 'w') as f:
+            self.config.write(f)
 
 
                 # --------------------- MANAGEMENT CATEGORIES --------------------------- #
@@ -231,16 +223,16 @@ class Test_009_category_Creation(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_009_category_Creation, self).__init__(*a, **kw)
         self.s = requests.Session()
+        token, index = authorization()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
     def test_01_category_created_correctly(self):
 
-        token, index = authorization()
-        time.sleep(3)
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
+
         self.command_category_create = 'management/categories/create'
         self.url_category_create = '{}/{}'.format(HOST, self.command_category_create)
         userdata = json.dumps({"parent_id": 3, "title": "AutoTest", "description": "string"})
-        response = self.s.post(self.url_category_create, data=userdata, headers=headers)
+        response = self.s.post(self.url_category_create, data=userdata, headers=self.headers)
         title = json.loads(response.content)['title']
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -262,16 +254,17 @@ class Test_011_category_Update_And_Delete(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_011_category_Update_And_Delete, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = authorization()
+        token, index = authorization()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
     def test_01_category_deleted_correctly(self):
         # Create before update and delete
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
+
         self.command_category_create = 'management/categories/create'
         self.url_category_create = '{}/{}'.format(HOST, self.command_category_create)
         userdata = json.dumps({"parent_id": 2, "title": "forUpdate", "description": "string"})
 
-        response = self.s.post(self.url_category_create, data=userdata, headers=headers)
+        response = self.s.post(self.url_category_create, data=userdata, headers=self.headers)
         identifier = json.loads(response.content)['id']
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -282,31 +275,29 @@ class Test_011_category_Update_And_Delete(unittest.TestCase):
         self.url_category_update = '{}/{}/{}?{}={}'.format(HOST, self.command_category_update, identifier,
                                                                self.isocode, self.isocode_value)
         userdata = json.dumps({"title": "categoryTest"})
-        response = self.s.patch(self.url_category_update, data=userdata, headers=headers)
+        response = self.s.patch(self.url_category_update, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
         self.command_category_delete = 'management/categories/delete'
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, identifier)
-        response = self.s.delete(self.url_category_delete, headers=headers)
+        response = self.s.delete(self.url_category_delete, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 
     def test_02_not_deleted_because_of_alphabetical_id(self):
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
-        self.command_category_delete = 'management/categories/delete'
         index = 'b'
+        self.command_category_delete = 'management/categories/delete'
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, index)
-        response = self.s.delete(self.url_category_delete, headers=headers)
+        response = self.s.delete(self.url_category_delete, headers=self.headers)
 
         self.assertEqual(response.status_code, WRONGID)
 
     def test_03_category_cant_be_deleted_because_id_doesnt_exist(self):
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
-        self.command_category_delete = 'management/categories/delete'
         index = 900
+        self.command_category_delete = 'management/categories/delete'
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, index)
-        response = self.s.delete(self.url_category_delete, headers=headers)
+        response = self.s.delete(self.url_category_delete, headers=self.headers)
 
         self.assertEqual(response.status_code, BADDATA)
 
@@ -318,14 +309,15 @@ class Test_012_Tag_Attaching_To_Category(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_012_Tag_Attaching_To_Category, self).__init__(*a, **kw)
         self.s = requests.Session()
+        token, index = authorization()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
     def test_01_attaching_tags_to_category(self):
-        token, index = authorization()
+
         self.command_category_create = 'management/categories/create'
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.url_category_create = '{}/{}'.format(HOST, self.command_category_create)
         userdata = json.dumps({"parent_id": 3, "title": "string", "description": "string"})
-        response = self.s.post(self.url_category_create, data=userdata, headers=headers)
+        response = self.s.post(self.url_category_create, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
@@ -334,7 +326,7 @@ class Test_012_Tag_Attaching_To_Category(unittest.TestCase):
         self.url_tags_create = '{}/{}'.format(HOST, self.command_tags_create)
         userdata = json.dumps({"name": "TestName"})
 
-        response = self.s.post(self.url_tags_create, data=userdata, headers=headers)
+        response = self.s.post(self.url_tags_create, data=userdata, headers=self.headers)
         identifier = json.loads(response.content)['id']
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -349,7 +341,7 @@ class Test_012_Tag_Attaching_To_Category(unittest.TestCase):
                                                                               self.category_id, index, self.tag_id,
                                                                               identifier, self.tag_type, self.matching_criteria,
                                                                               self.importance)
-        response = self.s.post(self.url_tag_attaching_to_category, headers=headers)
+        response = self.s.post(self.url_tag_attaching_to_category, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 
@@ -357,13 +349,13 @@ class Test_012_Tag_Attaching_To_Category(unittest.TestCase):
         self.url_tag_detaching_to_category = '{}/{}?{}={}&{}={}&{}'.format(HOST, self.command_tag_detaching_to_category,
                                                                            self.category_id, index, self.tag_id,
                                                                            identifier, self.tag_type)
-        response = self.s.delete(self.url_tag_detaching_to_category, headers=headers)
+        response = self.s.post(self.url_tag_detaching_to_category, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_category_delete = 'management/categories/delete'
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, index)
-        response = self.s.delete(self.url_category_delete, headers=headers)
+        response = self.s.delete(self.url_category_delete, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 
@@ -376,14 +368,15 @@ class Test_013_Roles(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_013_Roles, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = authorization()
+        token, index = authorization()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
     def test_01_role_show_correctly(self):
 
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
+
         self.command_get_all_roles = 'management/roles'
         self.url_get_all_roles = '{}/{}'.format(HOST, self.command_get_all_roles)
-        response = self.s.get(self.url_get_all_roles, headers=headers)
+        response = self.s.get(self.url_get_all_roles, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
@@ -392,15 +385,16 @@ class Test_014_ROLE_CRUD(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_014_ROLE_CRUD, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.token, self.index = authorization()
+        token, index = authorization()
         self.config = SafeConfigParser()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
     def test_01_role_create(self):
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
+
         self.command_create_roles = 'management/roles/create'
         self.url_create_roles = '{}/{}'.format(HOST, self.command_create_roles)
         roledata = json.dumps({"name": "AutoTest"})
-        response = self.s.post(self.url_create_roles, data=roledata, headers=headers)
+        response = self.s.post(self.url_create_roles, data=roledata, headers=self.headers)
         dataresponse = json.loads(response.content)
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -414,11 +408,11 @@ class Test_014_ROLE_CRUD(unittest.TestCase):
     def test_02_role_update(self):
         self.config.read('config.ini')
         role_id = self.config.getint('for_test', 'role_id_for_crud')
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
+
         self.command_update_roles = 'management/roles/update'
         self.url_update_roles = '{}/{}/{}'.format(HOST, self.command_update_roles, role_id)
         roledata = json.dumps({"name": "AutoTestUpdate"})
-        response = self.s.patch(self.url_update_roles, data=roledata, headers=headers)
+        response = self.s.patch(self.url_update_roles, data=roledata, headers=self.headers)
         name = json.loads(response.content)['name']
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -427,10 +421,10 @@ class Test_014_ROLE_CRUD(unittest.TestCase):
     def test_03_role_show(self):
         self.config.read('config.ini')
         role_id = self.config.getint('for_test', 'role_id_for_crud')
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
+
         self.command_update_roles = 'management/roles/show'
         self.url_update_roles = '{}/{}/{}'.format(HOST, self.command_update_roles, role_id)
-        response = self.s.get(self.url_update_roles, headers=headers)
+        response = self.s.get(self.url_update_roles, headers=self.headers)
         name = json.loads(response.content)['name']
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -439,10 +433,10 @@ class Test_014_ROLE_CRUD(unittest.TestCase):
     def test_04_role_delete(self):
         self.config.read('config.ini')
         role_id = self.config.getint('for_test', 'role_id_for_crud')
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
+
         self.command_delete_roles = 'management/roles/delete'
         self.url_delete_roles = '{}/{}/{}'.format(HOST, self.command_delete_roles, role_id)
-        response = self.s.delete(self.url_delete_roles, headers=headers)
+        response = self.s.delete(self.url_delete_roles, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
         self.config.set('for_test', 'role_id_for_crud', '')
@@ -470,7 +464,7 @@ class Test_015_business_CRUD(unittest.TestCase):
         email_value = time.strftime("%d%m%Y" + "%H%M%S") + "@" + "test.com"
         userdata = json.dumps({"partner_id": 1, "email": email_value, "business_id_by_partner": "string",
                                "address": "testAddress", "geo_latitude": "48.92279", "geo_longitude": "22.4519749",
-                               "name": "string", "description": "string"})
+                               "title": "newBussines", "description": "forTest"})
         response = self.s.post(self.url_business_create, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -557,19 +551,20 @@ class Test_017_Partner_Show(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_017_Partner_Show, self).__init__(*a, **kw)
         self.s = requests.Session()
+        token, index = authorization()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
     def test_01_partner_page_showed_correctly(self):
 
-        token, index = authorization()
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
+
         self.command_all_partners = 'management/partners'
         self.url_all_partners = '{}/{}'.format(HOST, self.command_all_partners)
-        response = self.s.get(self.url_all_partners, headers=headers)
+        response = self.s.get(self.url_all_partners, headers=self.headers)
         partner = json.loads(response.content)['data'][0]
 
         self.command_partner_show = 'management/partners/show'
         self.url_partner_show = '{}/{}/{}'.format(HOST, self.command_partner_show, partner['id'])
-        response = self.s.get(self.url_partner_show, headers=headers)
+        response = self.s.get(self.url_partner_show, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
         self.assertEqual(json.loads(response.content), partner)
@@ -602,17 +597,17 @@ class Test_019_Partner_Updating(unittest.TestCase):
         def __init__(self, *a, **kw):
             super(Test_019_Partner_Updating, self).__init__(*a, **kw)
             self.s = requests.Session()
+            token, index = authorization()
+            self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
         def test_01_partner_updated_correctly(self):
 
-            token, index = authorization()
-            time.sleep(3)
-            headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
+
             index = 6
             self.command_partner_update = 'management/partners/update'
             self.url_partner_update = '{}/{}/{}'.format(HOST, self.command_partner_update, index)
             userdata = json.dumps({"sync_period": "daily"})
-            response = self.s.patch(self.url_partner_update, data=userdata, headers=headers)
+            response = self.s.patch(self.url_partner_update, data=userdata, headers=self.headers)
 
             self.assertEqual(response.status_code, SUCCESS)
 
@@ -625,15 +620,14 @@ class Test_020_ServerActions(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_020_ServerActions, self).__init__(*a, **kw)
         self.s = requests.Session()
-        self.command_actions = 'management/actions'
-        self.url_all_actions = '{}/{}'.format(HOST, self.command_actions)
+        token, index = authorization()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
     def test_01_all_actions_showed_successfully(self):
 
-        token, index  = authorization()
-        time.sleep(3)
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
-        response = self.s.get(self.url_all_actions, headers=headers)
+        self.command_actions = 'management/actions'
+        self.url_all_actions = '{}/{}'.format(HOST, self.command_actions)
+        response = self.s.get(self.url_all_actions, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
@@ -664,7 +658,7 @@ class Test_021_offer_CRUD(unittest.TestCase):
         email_value = time.strftime("%d%m%Y" + "%H%M%S") + "@" + "test.com"
         userdata = json.dumps(
             {"partner_id": 1, "email": email_value, "business_id_by_partner": "string", "address": "string",
-             "geo_latitude": "48.92279", "geo_longitude": "22.4519749", "name": "ForOffer", "description": "string"})
+             "geo_latitude": "48.92279", "geo_longitude": "22.4519749", "title": "ForOffer", "description": "string"})
         response = self.s.post(self.url_business_create, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -806,23 +800,20 @@ class Test_021_offer_CRUD(unittest.TestCase):
             self.config.write(f)
 
 
-
-class Test_004_offer_Extra_Categories(unittest.TestCase):
+class Test_022_offer_Extra_Categories(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(Test_004_offer_Extra_Categories, self).__init__(*a, **kw)
+        super(Test_022_offer_Extra_Categories, self).__init__(*a, **kw)
         self.s = requests.Session()
+        token, index = authorization()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
 
     def test_01_offer_added_and_removed_extra_categories_correctly(self):
 
-        token, index = authorization()
-        time.sleep(3)
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_category_create = 'management/categories/create'
         self.url_category_create = '{}/{}'.format(HOST, self.command_category_create)
         userdata = json.dumps({"parent_id": 2, "title": "string", "description": "string"})
-        response = self.s.post(self.url_category_create, data=userdata, headers=headers)
-        identifier = json.loads(response.content)['id']
+        response = self.s.post(self.url_category_create, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
@@ -830,11 +821,10 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
         self.command_offer_attach_extra_category = 'management/offers/attach/extra-categories'
         self.command_offer_detach_extra_category = 'management/offers/detach/extra-categories'
         self.command_offer_delete = 'management/offers/delete'
-        self.command_category_create = 'management/categories/create'
 
         self.url_category_create = '{}/{}'.format(HOST, self.command_category_create)
         userdata = json.dumps({"parent_id": 3, "is_last": "false", "title": "string", "description": "string"})
-        response = self.s.post(self.url_category_create, data=userdata, headers=headers)
+        response = self.s.post(self.url_category_create, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
@@ -844,8 +834,8 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
         email_value = time.strftime("%d%m%Y" + "%H%M%S") + "@" + "test.com"
         userdata = json.dumps(
             {"partner_id": 1, "email": email_value, "business_id_by_partner": "string", "address": "string",
-             "geo_latitude": "48.92279", "geo_longitude": "22.4519749", "name": "string", "description": "string"})
-        response = self.s.post(self.url_business_create, data=userdata, headers=headers)
+             "geo_latitude": "48.92279", "geo_longitude": "22.4519749", "title": "string", "description": "string"})
+        response = self.s.post(self.url_business_create, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
@@ -855,7 +845,7 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
         userdata = json.dumps(
             {"title": "string1", "description": "string", "business_id": index, "main_category_id": identifier,
              "SKU": "string", "offer_quantity": 0, "offer_id_by_partner": "string", "delivery_cost": 0, "vat": 0})
-        response = self.s.post(self.url_offer_create, data=userdata, headers=headers)
+        response = self.s.post(self.url_offer_create, data=userdata, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
@@ -866,7 +856,7 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
                                                                             self.command_offer_attach_extra_category,
                                                                             self.offer_ids, index, self.category_ids,
                                                                             identifier)
-        response = self.s.post(self.url_offer_attach_extra_categories, headers=headers)
+        response = self.s.post(self.url_offer_attach_extra_categories, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 
@@ -874,19 +864,19 @@ class Test_004_offer_Extra_Categories(unittest.TestCase):
                                                                             self.command_offer_detach_extra_category,
                                                                             self.offer_ids, index,
                                                                             self.category_ids, identifier)
-        response = self.s.delete(self.url_offer_detach_extra_categories, headers=headers)
+        response = self.s.post(self.url_offer_detach_extra_categories, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_category_delete = 'management/categories/delete'
         self.url_category_delete = '{}/{}/{}'.format(HOST, self.command_category_delete, identifier)
-        response = self.s.delete(self.url_category_delete, headers=headers)
+        response = self.s.delete(self.url_category_delete, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 
         self.command_offer_delete = 'management/offers/delete'
         self.url_offer_delete = '{}/{}/{}'.format(HOST, self.command_offer_delete, index)
-        response = self.s.delete(self.url_offer_delete, headers=headers)
+        response = self.s.delete(self.url_offer_delete, headers=self.headers)
 
         self.assertEqual(response.status_code, NO_CONTENT)
 
@@ -899,7 +889,6 @@ class Test_004_Image_Attaching(unittest.TestCase):
     def test_01_image_is_attached_successfully(self):
 
         token, user_id = authorization()
-        time.sleep(3)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.partner_id = 'partner_id'
         partner_id = 6
@@ -929,14 +918,13 @@ class Test_004_attach_image_to_business(unittest.TestCase):
     def test_01_image_is_attached_successfully(self):
 
         token, index = authorization()
-        time.sleep(5)
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': token}
         self.command_business_create = 'management/businesses/create'
 
         self.url_business_create = '{}/{}'.format(HOST, self.command_business_create)
         email_value = time.strftime("%d%m%Y" + "%H%M%S") + "@" + "test.com"
         userdata = json.dumps \
-            ({"partner_id": 1, "email": email_value, "business_id_by_partner": "string", "address": "string", "geo_latitude": "48.92279", "geo_longitude": "22.4519749", "name": "string", "description": "string"})
+            ({"partner_id": 1, "email": email_value, "business_id_by_partner": "string", "address": "string", "geo_latitude": "48.92279", "geo_longitude": "22.4519749", "title": "forImage", "TestImage": "string"})
         response = self.s.post(self.url_business_create, data=userdata, headers=headers)
 
         self.assertEqual(response.status_code, SUCCESS)
@@ -958,7 +946,7 @@ class Test_004_attach_image_to_business(unittest.TestCase):
                                                                              self.command_businesses_image_detach,
                                                                              self.business_id,
                                                                              identificator, self.image_id, image_id)
-        response = self.s.delete(self.url_businesses_image_detach, headers=headers)
+        response = self.s.post(self.url_businesses_image_detach, headers=headers)
 
         self.assertEqual(response.status_code, FINISHED)
 
@@ -978,7 +966,6 @@ class Test_004_Image_Uploading(unittest.TestCase):
     def test_01_image_is_upload_successfully(self):
 
         token, user_id = authorization()
-        time.sleep(3)
         headers = {'Authorization': token}
         self.partner_id = 'partner_id'
         self.image_id = 'image_id'

@@ -21,15 +21,5 @@ class Test_001_get_special_categories(unittest.TestCase):
 
         self.assertEqual(response.status_code, SUCCESS)
 
-        category_id = json.loads(response.content)['data'][0]['id']
-        self.command_get_categories = 'categories/show'
-        self.url_all_special_categories = '{}/{}/{}'.format(HOST, self.command_get_categories, category_id)
-        data = json.dumps({"withRelations": 'specialCategories'})
-        response = self.s.get(self.url_all_special_categories, data=data, headers=self.headers)
-        response = json.loads(response.content)
-
-        self.assertEqual('specialCategories' in response, True)
-
-
 if __name__ == '__main__':
     unittest.main()

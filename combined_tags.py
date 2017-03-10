@@ -33,7 +33,7 @@ class Test_001_get_combined_tags(unittest.TestCase):
 # GET /management/combined-tags/show/{id}
     def test_03_get_combined_tags_show(self):
         self.command_all_tags = 'management/combined-tags/show'
-        self.url_all_tags = '{}/{}/{}'.format(HOST, self.command_all_tags, 1)
+        self.url_all_tags = '{}/{}/{}'.format(HOST, self.command_all_tags, 128)
         response = self.s.get(self.url_all_tags, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)

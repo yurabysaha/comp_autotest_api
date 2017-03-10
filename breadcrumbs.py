@@ -14,7 +14,7 @@ class Test_001_get_breadcrumbs(unittest.TestCase):
 
     def test_01_all_businesses_opened(self):
         self.command_get_breadcrumbs = 'breadcrumbs'
-        category_id = 1
+        category_id = 12
         self.url_get_breadcrumbs = '{}/{}?{}'.format(HOST, self.command_get_breadcrumbs, 'id='+str(category_id))
         response = self.s.get(self.url_get_breadcrumbs, headers=self.headers)
 

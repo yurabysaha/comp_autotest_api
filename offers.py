@@ -12,45 +12,37 @@ class Test_001_All_offers(unittest.TestCase):
     def __init__(self, *a, **kw):
         super(Test_001_All_offers, self).__init__(*a, **kw)
         self.command_all_offers = 'offers'
-        self.command_get_offers = 'offers/get'
         self.isocode = 'isocode1'
         self.isocode_value = 'sv'
-        self.latitude = 'latitude'
-        self.latitude_value = 59.3258414
-        self.longitude = 'longitude'
-        self.longitude_value = 17.7073729
+        self.latitude_value = 'latitude=59.3258414'
+        self.longitude_value = 'longitude=17.7073729'
         self.page = 'page=1'
-        self.limit = 'limit10'
+        self.limit = 'limit=10'
         self.s = requests.Session()
+        self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
 
-    def test_01_all_offers_opened(self):
-        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
-                                                               self.isocode_value, self.latitude, self.latitude_value,
-                                                               self.longitude, self.longitude_value)
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
-        response = self.s.get(self.url_all_offers, headers=headers)
-
-        self.assertEqual(response.status_code, SUCCESS)
-
-    def test_02_get_offers(self):
-        self.url_get_offers = '{}/{}?{}&{}'.format(HOST, self.command_get_offers, self.page, self.limit)
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
-        response = self.s.get(self.url_get_offers, headers=headers)
+    def test_01_get_all_offers(self):
+        self.url_all_offers = '{}/{}?{}={}&{}&{}'.format(HOST, self.command_all_offers, self.isocode,
+                                                               self.isocode_value, self.latitude_value, self.longitude_value)
+        response = self.s.get(self.url_all_offers, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
-    def test_03_test_pagination(self):
-
-        self.url_get_offers = '{}/{}?{}&{}'.format(HOST, self.command_get_offers, self.page, self.limit)
-        headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
-        response = self.s.get(self.url_get_offers, headers=headers)
+    def test_02_offers_pagination(self):
+        self.url_all_offers = '{}/{}?{}={}&{}&{}&{}&{}'.format(HOST, self.command_all_offers, self.isocode,
+                                                         self.isocode_value, self.latitude_value, self.longitude_value,
+                                                         self.page, self.limit)
+        response = self.s.get(self.url_all_offers, headers=self.headers)
         page1data = json.loads(response.content)['data']
 
         self.assertEqual(response.status_code, SUCCESS)
 
         self.page = 'page=2'
-        self.url_get_offers = '{}/{}?{}&{}'.format(HOST, self.command_get_offers, self.page, self.limit)
-        response = self.s.get(self.url_get_offers, headers=headers)
+        self.url_all_offers = '{}/{}?{}={}&{}&{}&{}&{}'.format(HOST, self.command_all_offers, self.isocode,
+                                                               self.isocode_value, self.latitude_value,
+                                                               self.longitude_value,
+                                                               self.page, self.limit)
+        response = self.s.get(self.url_all_offers, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
         self.assertNotEqual(page1data, json.loads(response.content)['data'])
@@ -65,44 +57,40 @@ class Test_002_offer_Show(unittest.TestCase):
         self.command_all_offers = 'offers'
         self.isocode = 'isocode1'
         self.isocode_value = 'sv'
-        self.latitude = 'latitude'
-        self.latitude_value = 59.3258414
-        self.longitude = 'longitude'
-        self.longitude_value = 17.7073729
+        self.latitude_value = 'latitude=59.3258414'
+        self.longitude_value = 'longitude=17.7073729'
 
     def test_01_show_offer(self):
 
-        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
-                                                               self.isocode_value, self.latitude, self.latitude_value,
-                                                               self.longitude, self.longitude_value)
-        offers = self.s.get(self.url_all_offers, headers=self.headers)
-        m = json.loads(offers.content)
+        self.url_all_offers = '{}/{}?{}={}&{}&{}'.format(HOST, self.command_all_offers, self.isocode,
+                                                         self.isocode_value, self.latitude_value, self.longitude_value)
+        response = self.s.get(self.url_all_offers, headers=self.headers)
+        m = json.loads(response.content)
         index = int(m['data'][1]['id'])
 
-        self.command_offer_show = 'offers/show'
-        self.url_offer_show = '{}/{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_offer_show, index, self.isocode,
-                                                                  self.isocode_value, self.latitude, self.latitude_value,
-                                                                  self.longitude, self.longitude_value)
+        command_offer_show = 'offers/show'
+        self.url_offer_show = '{}/{}/{}?{}={}&{}&{}'.format(HOST, command_offer_show, index, self.isocode,
+                                                               self.isocode_value, self.latitude_value,
+                                                               self.longitude_value)
         response = self.s.get(self.url_offer_show, headers=self.headers)
 
         self.assertEqual(response.status_code, SUCCESS)
 
     def test_02_show_offer_with_keys(self):
-        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
-                                                               self.isocode_value, self.latitude, self.latitude_value,
-                                                               self.longitude, self.longitude_value)
+        self.url_all_offers = '{}/{}?{}={}&{}&{}'.format(HOST, self.command_all_offers, self.isocode,
+                                                               self.isocode_value, self.latitude_value,
+                                                               self.longitude_value)
         offers = self.s.get(self.url_all_offers, headers=self.headers)
         m = json.loads(offers.content)
         offer = m['data'][1]
         offer_id = int(m['data'][1]['id'])
 
-        self.command_offer_show = 'offers/show'
-        keys = ['description', 'price', 'title', 'status']
+        command_offer_show = 'offers/show'
+        keys = ['price', 'title', 'status','description']
         for k in keys:
-            self.url_offer_show = '{}/{}/{}?{}={}&{}={}&{}={}&keys={}'.format(HOST, self.command_offer_show, offer_id, self.isocode,
-                                                                      self.isocode_value, self.latitude,
-                                                                      self.latitude_value, self.longitude,
-                                                                      self.longitude_value, k)
+            self.url_offer_show = '{}/{}/{}?{}={}&{}&{}&keys={}'.format(HOST, command_offer_show, offer_id, self.isocode,
+                                                               self.isocode_value, self.latitude_value,
+                                                               self.longitude_value, k)
             response = self.s.get(self.url_offer_show, headers=self.headers)
 
             self.assertEqual(response.status_code, SUCCESS)
@@ -110,21 +98,19 @@ class Test_002_offer_Show(unittest.TestCase):
             self.assertEqual(offer[k], response[k])
 
     def test_03_show_offer_withRelations(self):
-        self.url_all_offers = '{}/{}?{}={}&{}={}&{}={}'.format(HOST, self.command_all_offers, self.isocode,
-                                                               self.isocode_value, self.latitude, self.latitude_value,
-                                                               self.longitude, self.longitude_value)
-        offers = self.s.get(self.url_all_offers, headers=self.headers)
-        m = json.loads(offers.content)
-        offer = m['data'][1]
+        self.url_all_offers = '{}/{}?{}={}&{}&{}'.format(HOST, self.command_all_offers, self.isocode,
+                                                         self.isocode_value, self.latitude_value, self.longitude_value)
+        response = self.s.get(self.url_all_offers, headers=self.headers)
+        m = json.loads(response.content)
         offer_id = int(m['data'][1]['id'])
 
         self.command_offer_show = 'offers/show'
-        keys = ['business', 'partner', 'orders', 'mainCategory', 'extraCategories', 'form']
+        keys = ['business', 'orders', 'mainCategory', 'extraCategories', 'form']
         for k in keys:
-            self.url_offer_show = '{}/{}/{}?{}={}&{}={}&{}={}&withRelations={}'.format(HOST, self.command_offer_show,
+            self.url_offer_show = '{}/{}/{}?{}={}&{}&{}&withRelations={}'.format(HOST, self.command_offer_show,
                                                                                         offer_id, self.isocode,
-                                                                                        self.isocode_value, self.latitude,
-                                                                                        self.latitude_value, self.longitude,
+                                                                                        self.isocode_value,
+                                                                                        self.latitude_value,
                                                                                         self.longitude_value, k)
             response = self.s.get(self.url_offer_show, headers=self.headers)
 
@@ -142,7 +128,6 @@ class Test_003_bestOffers(unittest.TestCase):
     def test_01_best_offers_showed_correctly(self):
 
         headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER}
-        self.command_best_offers = 'offers/best'
         self.isocode = 'isocode1'
         self.isocode_value = 'sv'
         self.category_ids_title = 'category_ids'
@@ -153,6 +138,7 @@ class Test_003_bestOffers(unittest.TestCase):
         latitude_value = '59.3258414'
         self.longitude = 'longitude'
         longitude_value = '17.7073729'
+        self.command_best_offers = 'offers/best'
         self.url_best_offers = '{}/{}?{}={}&{}={}&{}={}&{}={}&{}={}'.format(HOST, self.command_best_offers,
                                                                             self.isocode, self.isocode_value,
                                                                             self.category_ids_title,

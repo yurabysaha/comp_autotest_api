@@ -5,10 +5,10 @@ from authorization import authorization
 from baseSettings import *
 
 
-class ATest_001_All_tags(unittest.TestCase):
+class Test_001_All_tags(unittest.TestCase):
 
     def __init__(self, *a, **kw):
-        super(ATest_001_All_tags, self).__init__(*a, **kw)
+        super(Test_001_All_tags, self).__init__(*a, **kw)
         self.s = requests.Session()
         self.token, index = authorization()
         self.headers = {'content-type': DEFAULT_HEADER, 'accept': DEFAULT_HEADER, 'Authorization': self.token}
